@@ -1,4 +1,4 @@
-# Valohai integration example for YoloV3 & TensorFlow 2.0
+# Valohai example for YoloV3 & TensorFlow 2.0
 
 Example for [Valohai](https://valohai.com) MLOps platform to train a deep computer vision model.
 
