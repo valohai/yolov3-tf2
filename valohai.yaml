@@ -1,69 +1,54 @@
 - step:
     name: convert-superbai
-    image: tensorflow/tensorflow:2.4.0
+    image: valohai/yolov3-tf2:cpu
     command:
-    - apt-get update
-    - apt-get install -y wget libsm6 libxext6 libxrender-dev
-    - pip install -r requirements.txt
     - python tools/superbai/superbai.py
     inputs:
     - name: images
       optional: false
     - name: labels
       optional: false
+    environment: azure-westeurope-f2sv2
 - step:
-    name: detect
-    image: tensorflow/tensorflow:2.4.0
+    name: weights
+    image: valohai/yolov3-tf2:cpu
     command:
-    - apt-get update
-    - apt-get install -y wget libsm6 libxext6 libxrender-dev
-    - pip install -r /valohai/repository/requirements.txt
-    - python detect.py {parameters}
+    - python ./weights.py {parameters}
     parameters:
-    - name: size
-      default: 416
-      multiple-separator: ','
+    - name: weights_num_classes
+      default: 80
       optional: false
       type: integer
     inputs:
-    - name: classes
+    - name: weights
+      default:
+      - https://pjreddie.com/media/files/yolov3.weights
       optional: false
-    - name: model
-      optional: false
-    - name: image
-      optional: true
+    environment: azure-westeurope-f2sv2
 - step:
     name: train
-    image: tensorflow/tensorflow:2.4.0-gpu
+    image: valohai/yolov3-tf2:gpu
     command:
-    - apt-get update
-    - apt-get install -y wget libsm6 libxext6 libxrender-dev
-    - pip install -r /valohai/repository/requirements-gpu.txt
     - python train.py {parameters}
     parameters:
     - name: batch_size
       default: 8
-      multiple-separator: ','
       optional: false
       type: integer
     - name: epochs
       default: 10
-      multiple-separator: ','
       optional: false
       type: integer
     - name: learning_rate
       default: 0.001
-      multiple-separator: ','
       optional: false
       type: float
     - name: weights_num_classes
       default: 80
-      multiple-separator: ','
       optional: false
       type: integer
     - name: size
       default: 416
-      multiple-separator: ','
       optional: false
       type: integer
     inputs:
@@ -77,59 +62,58 @@
       optional: false
     environment: azure-westeurope-nc6
 - step:
-    name: weights
-    image: tensorflow/tensorflow:2.4.0
+    name: detect
+    image: valohai/yolov3-tf2:cpu
     command:
-    - apt-get update
-    - apt-get install -y wget libsm6 libxext6 libxrender-dev
-    - pip install -r requirements.txt
-    - python ./weights.py {parameters}
+    - python detect.py {parameters}
     parameters:
-    - name: weights_num_classes
-      default: 80
-      multiple-separator: ','
+    - name: size
+      default: 416
       optional: false
       type: integer
     inputs:
-    - name: weights
-      default:
-      - https://pjreddie.com/media/files/yolov3.weights
+    - name: classes
       optional: false
+    - name: model
+      optional: false
+    - name: image
+      optional: true
+    environment: azure-westeurope-f2sv2
 - pipeline:
     name: train-superbai
     edges:
     - configuration: {}
-      source: convert-superbai_1.output.classes.txt
-      target: train_1.input.classes
+      source: convert-superbai.output.classes.txt
+      target: train.input.classes
     - configuration: {}
-      source: convert-superbai_1.output.train/*
-      target: train_1.input.train
+      source: convert-superbai.output.train/*
+      target: train.input.train
     - configuration: {}
-      source: convert-superbai_1.output.test/*
-      target: train_1.input.test
+      source: convert-superbai.output.test/*
+      target: train.input.test
     - configuration: {}
-      source: convert-superbai_1.output.classes.txt
-      target: detect_1.input.classes
+      source: convert-superbai.output.classes.txt
+      target: detect.input.classes
     - configuration: {}
-      source: weights_1.output.model/*
-      target: train_1.input.model
+      source: weights.output.model/*
+      target: train.input.model
     - configuration: {}
-      source: train_1.output.model/*
-      target: detect_1.input.model
+      source: train.output.model/*
+      target: detect.input.model
     nodes:
-    - name: convert-superbai_1
+    - name: convert-superbai
       override: {}
       step: convert-superbai
       type: execution
-    - name: weights_1
+    - name: weights
       override: {}
       step: weights
       type: execution
-    - name: train_1
+    - name: train
       override: {}
       step: train
       type: execution
-    - name: detect_1
+    - name: detect
       override: {}
       step: detect
       type: execution
