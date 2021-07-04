@@ -1,10 +1,12 @@
+import shutil
+import tempfile
 import time
 import cv2
 import numpy as np
 import tensorflow as tf
-import yolov3_tf2
 import valohai
 import os
+import zipfile
 
 from yolov3_tf2.models import (
     YoloV3
@@ -27,8 +29,10 @@ valohai.prepare(step="detect", default_parameters=params, default_inputs=inputs)
 
 
 def main():
-    yolov3_tf2.YOLO_IOU_THRESHOLD = valohai.parameters('iou_threshold').value
-    yolov3_tf2.YOLO_SCORE_THRESHOLD = valohai.parameters('score_threshold').value
+    model_path = tempfile.mkdtemp()
+
+    with zipfile.ZipFile(valohai.inputs('model').path(process_archives=False), 'r') as zip_ref:
+        zip_ref.extractall(model_path)
 
     with open(valohai.inputs('classes').path(), "r") as f:
         num_classes = len([line.strip("\n") for line in f if line != "\n"])
@@ -39,7 +43,8 @@ def main():
         tf.config.experimental.set_memory_growth(physical_device, True)
 
     yolo = YoloV3(classes=num_classes)
-    weights_path = os.path.join(os.path.dirname(valohai.inputs('model').path()), "model.tf")
+
+    weights_path = os.path.join(model_path, "model.tf")
     yolo.load_weights(weights_path).expect_partial()
     print('weights loaded')
 
@@ -71,6 +76,10 @@ def main():
         cv2.imwrite(output_path, img)
         print('output saved to: {}'.format(output_path))
 
+    shutil.copyfile(
+        valohai.inputs('model').path(process_archives=False),
+        valohai.outputs("model").path("model.zip")
+    )
 
 if __name__ == "__main__":
     main()

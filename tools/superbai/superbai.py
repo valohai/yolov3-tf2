@@ -8,11 +8,11 @@ import tensorflow as tf
 
 
 inputs = {
-    "images": ".data/data_coco.zip",
-    "labels": ".data/labels_coco.zip",
+    "images": "datum://017a71bc-5e27-e0d2-a2ff-676ca416bcf1",
+    "labels": "datum://017a71be-47af-4b23-e2e9-ab711a71eb77",
 }
 
-valohai.prepare(step="convert-superbai", default_inputs=inputs)
+valohai.prepare(step="convert-superbai", default_inputs=inputs, image="valohai/yolov3-tf2:cpu")
 
 
 def main():

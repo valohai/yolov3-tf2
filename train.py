@@ -108,7 +108,7 @@ def main():
     path = valohai.outputs('model').path('model.tf')
     model.save_weights(valohai.outputs('model').path('model.tf'))
     print(f'Model saved to {path}')
-
+    valohai.outputs('model').compress('*', 'model.zip')
 
 if __name__ == "__main__":
     main()
