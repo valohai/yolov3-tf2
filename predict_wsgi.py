@@ -104,13 +104,13 @@ def predict_wsgi(environ, start_response):
         scores_by_class[class_name]["count"] += 1
         scores_by_class[class_name]["boxes"].append([float(coord) for coord in np.array(boxes[0][i])])
 
-    speed = (t2 - t1)
+    duration = (t2 - t1)
 
     class_count = len(scores_by_class.keys())
 
     score_avg = sum([item["score"] / item["count"] for key, item in scores_by_class.items()]) / class_count if class_count > 0 else 0.0
     logs = dict(
-        inference_speed=speed,
+        inference_duration=duration,
         score_avg=score_avg,
         rect_count=box_count,
     )
