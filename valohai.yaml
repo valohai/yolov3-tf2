@@ -24,6 +24,10 @@
       multiple-separator: ','
       optional: false
       type: integer
+    - name: production-pipeline
+      default: false
+      multiple-separator: ','
+      type: flag
     inputs:
     - name: classes
       optional: false
