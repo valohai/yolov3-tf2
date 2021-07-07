@@ -90,6 +90,7 @@ def main():
     if valohai.parameters('production-pipeline').value:
         metadata["valohai.alias"] = ["production-model"]
 
+    print("SAVING METADATA", metadata)
     metadata_path = valohai.outputs("model").path('model.zip.metadata.json')
     with open(metadata_path, 'w') as outfile:
         json.dump(metadata, outfile)
