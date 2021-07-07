@@ -88,7 +88,7 @@ def main():
         "valohai.tags": ["model", "validated"],  # creates Valohai tags for the file
     }
     if valohai.parameters('production-pipeline').value:
-        metadata["valohai.alias"] = ["production-model"]
+        metadata["valohai.alias"] = "production-model"
 
     print("SAVING METADATA", metadata)
     metadata_path = valohai.outputs("model").path('model.zip.metadata.json')
