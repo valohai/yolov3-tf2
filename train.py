@@ -1,3 +1,5 @@
+import json
+
 import tensorflow as tf
 import os
 
@@ -105,10 +107,15 @@ def main():
               epochs=valohai.parameters('epochs').value,
               callbacks=callbacks,
               validation_data=test_dataset)
+
     path = valohai.outputs('model').path('model.tf')
     model.save_weights(valohai.outputs('model').path('model.tf'))
     print(f'Model saved to {path}')
     valohai.outputs('model').compress('*', 'model.zip')
+
+    metadata_path = valohai.outputs("model").path('model.zip.metadata.json')
+    with open(metadata_path, 'w') as outfile:
+        json.dump({"valohai.tags": ["model"]}, outfile)
 
 if __name__ == "__main__":
     main()

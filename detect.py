@@ -1,3 +1,4 @@
+import json
 import shutil
 import tempfile
 import time
@@ -17,6 +18,7 @@ from yolov3_tf2.utils import draw_outputs
 
 params = {
     "size": 416,
+    "production-pipeline": False
 }
 
 inputs = {
@@ -76,10 +78,21 @@ def main():
         cv2.imwrite(output_path, img)
         print('output saved to: {}'.format(output_path))
 
+
     shutil.copyfile(
         valohai.inputs('model').path(process_archives=False),
         valohai.outputs("model").path("model.zip")
     )
+
+    metadata = {
+        "valohai.tags": ["model", "validated"],  # creates Valohai tags for the file
+    }
+    if valohai.parameters('production-pipeline').value:
+        metadata["valohai.alias"] = ["production-model"]
+
+    metadata_path = valohai.outputs("model").path('model.zip.metadata.json')
+    with open(metadata_path, 'w') as outfile:
+        json.dump(metadata, outfile)
 
 if __name__ == "__main__":
     main()
