@@ -17,7 +17,7 @@
     name: detect
     image: valohai/yolov3-tf2:cpu
     command:
-    - python detect.py {parameters}
+    - python detect.py
     parameters:
     - name: size
       default: 416
