@@ -13,7 +13,7 @@ inputs = {
     "images": "datum://017a71bc-5e27-e0d2-a2ff-676ca416bcf1"
 }
 
-url = "https://valohai.cloud/valohai/yolov3-tf2/yolov3/production/predict"
+url = valohai.parameters("endpoint").value
 logger = valohai.logger()
 
 valohai.prepare(step="request generator", default_parameters=params, default_inputs=inputs, image="")
